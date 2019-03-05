@@ -2,7 +2,9 @@
 
 `s3-upload` lets you easily upload files to the cloud for free.
 
-Replace [CloudApp](https://www.getcloudapp.com/) and [Droplr](https://droplr.com/) for sharing files, screenshots, and videos with friends and co-workers. With a little set-up, you can:
+Replace [CloudApp](https://www.getcloudapp.com/) and [Droplr](https://droplr.com/) for **sharing files, screenshots, and videos** with friends and co-workers.
+
+With a little set-up, you can:
 
 - Auto-upload files the cloud for free.
 - Easily anotate image uploads with your preferred graphics software.
