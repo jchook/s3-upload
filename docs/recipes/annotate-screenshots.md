@@ -2,7 +2,7 @@
 
 The basic princple:
 
-1. Configure your screenshot command to launch your favorite 2D editor, like `gimp`, each time you take a screenshot.
+1. Tell your screenshot command to launch your favorite 2D editor, like `gimp`, each time you take a screenshot.
 2. Bind it to a hotkey in your window manager or OS.
 3. Configure a filesystem event watcher like `fswatch` to respond to changes in the screenshots folder by calling `s3-upload`.
 

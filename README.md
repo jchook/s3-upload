@@ -4,13 +4,21 @@
 
 Replace [CloudApp](https://www.getcloudapp.com/) and [Droplr](https://droplr.com/) for sharing files, screenshots, and videos with friends and co-workers. With a little set-up, you can:
 
-- Upload files, screenshots, & screencasts to the cloud for free.
-- Easily anotate visual uploads with your own graphics software.
-- Copy share URLs to clipboard automatically.
+- Auto-upload files the cloud for free.
+- Easily anotate image uploads with your preferred graphics software.
+- Copy sharable URLs to clipboard automatically.
 
 For more information on how to easily set this up, check out the [recipes](#user-content-recipes).
 
-With this guide, you can replace your screenshot sharing tool with 100% free and open source software.
+## Benefits
+
+With this guide, you can replace your screenshot sharing tool with something better:
+
+- 5GB completely free.
+- Configure auto-expire or not.
+- 100% free and open source software.
+- Bring your own annotation / graphics software like Gimp, Sketch, or Photoshop.
+- Get links to direct files. No tracking or intermediary pages.
 
 ## Install
 

@@ -17,9 +17,7 @@ For a great cross-platform filesystem watcher, try [fswatch](https://github.com/
 fswatch --event=Created "$HOME/screenshots" | s3-upload --stdin
 ```
 
-, I use . Peek remembers the destination folder you choose for next time.
-
-They make it hard to find the available event types:
+They make it hard to find the available [event types](https://github.com/emcrisostomo/fswatch/issues/207). You can specify multiple:
 
 ```
 NoOp
@@ -91,3 +89,4 @@ sleep 0.2; scrot -s "$HOME/screenshots/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e "gimp \$f
 You can assign this to a separate hotkey to have quick access to annotating files. If you set-up your file watcher properly, e.g. with `fswatch --event=Updated`, then it should re-upload the annotated version automatically.
 
 On other platforms, you can apply this same principle with alternative software.
+Check out the [guide on annotating screenshots](annotate-screenshots.md).

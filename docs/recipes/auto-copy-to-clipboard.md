@@ -1,6 +1,6 @@
 # Auto-copy to clipboard
 
-A lot of times you want to automatically copy the share URL of your file uploads to the system clipboard. You can do this with the `-C` or `--copy` option.
+A lot of times you want to automatically copy the share URL of your file uploads to the system clipboard. You can do this with the `-C` or `--copy` option via command line.
 
 If you want to make this the default behavior, you can add this to your `~/.config/s3-upload` file:
 
@@ -8,9 +8,16 @@ If you want to make this the default behavior, you can add this to your `~/.conf
 # Copy URL to clipboard by default
 COPY=1
 
-# Use a custom clipboard command (optional)
-# This one works on Mac OS X
-CLIPBOARD="pbcopy"
+# Use a custom clipboard command? (optional)
+
+# This one works on Mac OS X:
+# CLIPBOARD="pbcopy"
+
+# If you use Linux:
+# CLIPBOARD="xclip -selection clipboard"
+
+# If you `npm i -g clipboard-cli`:
+# CLIPBOARD="clipboard"
 ```
 
 Everything should work out-of-the-box on Linux and Mac OS.
