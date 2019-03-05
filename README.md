@@ -9,15 +9,29 @@ I created this to replace [CloudApp](https://www.getcloudapp.com/) for sharing s
 - `bash` and `curl` (usually built-in)
 - [Amazon S3 account](https://aws.amazon.com/s3/) (free)
 
+## Install
+
+Simply copy the `s3-upload` executable to your `PATH`. For example:
+
+```sh
+wget https://raw.githubusercontent.com/jchook/s3-upload/master/s3-upload
+chmod +x s3-upload
+sudo mv s3-upload /usr/local/bin
+```
+
+You can repeat the same process for upgrades to a newer version.
+
 ## Usage
 
-To upload a file simply pass it as the argument(s) to the executeable. The URL for the uploaded file will print to standard output.
+To upload a file simply pass it as the argument(s) to the executeable. The URL for the uploaded file will print to standard output. You can use the `--copy` option to copy it to clipboard.
 
 ```sh
   s3-upload [options] [--] [<file> | -] ...
 ```
 
 ## Options
+
+Command-line options allow you to override all other configuration at the call site.
 
 ```
   -c, --config <file>
@@ -54,6 +68,20 @@ To upload a file simply pass it as the argument(s) to the executeable. The URL f
     Specify a hyphen (-) to pipe data from stdin.
 ```
 
+## Config file
+
+You can configure almost all option defaults from the file located in `~/.config/s3-upload`. Use standard bash like so.
+
+```sh
+S3_ACCESS_KEY="XXX"
+S3_PRIVATE_KEY="YYY"
+S3_BUCKET_NAME="ZZZ"
+COPY=1
+NOTIFY=1
+QUIET=
+CLIPBOARD="xclip -selection clipboard"
+```
+
 
 ## Examples
 
@@ -88,7 +116,7 @@ To upload a file simply pass it as the argument(s) to the executeable. The URL f
 
 Alone this tool is pretty useful for me, but I found some really great ways to integrate it into my workflow.
 
-### Auto-upload Screenshots
+### Auto-upload screenshots
 
 On Linux you can use [incron](https://inotify.aiken.cz/?section=incron&page=doc&lang=en) to automatically respond to filesystem changes with arbitrary commands.
 
@@ -102,4 +130,15 @@ Make sure your user owns the file:
 
 ```sh
 chown "$(whoami)" /var/spool/incron/s3-upload
+```
+
+
+### Copy share URL to clipboard
+
+A lot of times you want to automatically copy the share URL to the clipboard. You can do this with the `-C` or `--copy` option.
+
+If you want to make this the default behavior, you can add this to your `~/.config/s3-upload` file:
+
+```sh
+COPY=1
 ```
