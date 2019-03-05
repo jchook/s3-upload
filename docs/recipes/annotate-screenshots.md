@@ -1,25 +1,20 @@
 # Annotate Screenshots
 
-The basic princple:
+An essential feature of Droplr and CloudApp: annotations. We want to edit our screenshots immediately and have those changes beamed right up to the cloud. Let's look at some options.
 
-1. Sceenshot then launch 2D editor, like `gimp`.
-2. Bind it to a hotkey in your window manager or OS.
-3. Call `s3-upload` any time you update files in a given folder.
+## 1. Screenshot + annotation software
 
-On *nix systems, you can follow the guide to [auto-upload screenshots](auto-upload-screenshots.md) to achieve this functionality.
+* **macOS** - Built-in Preview.app [does pretty well](https://www.tweaking4all.com/software/macosx-software/take-screenshot-and-annotate/#BasicAnnotationFunctions).
+* **Linux** - I use [Flameshot](https://github.com/lupoDharkael/flameshot). You can find [others](https://wiki.archlinux.org/index.php/Screen_capture#Dedicated_software), too.
+* **Windows 10** - You can use the [built-in tool](https://support.microsoft.com/en-us/help/4488540/how-to-take-and-annotate-screenshots-on-windows-10).
 
-Here is a quick example of my set-up:
-
-## 1. Screenshot command
-
-I saved this to my PATH, e.g. `$HOME/.local/bin/screenshot-annotate`
+If you need to, you can configure your screenshot executeable to automatically launch your favorite graphics editing software. For example, I had this working for a while before I found Flameshot, saved to my `PATH` as `screenshot-annotate`:
 
 ```sh
 #!/bin/sh
-SCREENSHOT_DIR=$HOME/screenshots
-mkdir -p $SCREENSHOT_DIR
-sleep 0.2; scrot -s "$SCREENSHOT_DIR/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e 'gimp $f'
+sleep 0.2; scrot -s "$HOME/screenshots/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e 'gimp $f'
 ```
+
 
 ## 2. Bind to a hotkey
 
@@ -29,7 +24,7 @@ This really varies per platform:
 * **Windows 10** - you [have some built-in options](https://www.laptopmag.com/articles/create-keyboard-shortcuts-windows-10).
 * **Linux** - check the docs for your DE or WM, e.g. [Gnome](https://help.gnome.org/users/gnome-help/stable/keyboard-shortcuts-set.html.en), [KDE](https://docs.kde.org/trunk5/en/kde-workspace/kcontrol/khotkeys/index.html), or [i3](https://i3wm.org/docs/userguide.html), [Xmonad](https://github.com/xmonad/xmonad/blob/bb13853929f8f6fc59b526bcc10631e1bac309ad/src/XMonad/Config.hs#L189), etc.
 
-In my case I have Xmonad WM and simply updated my config to launch `screenshot-annotate` when I press certain keys.
+In my case I have Xmonad WM and simply updated my config to launch `flameshot gui` when I press certain keys.
 
 
 ## 3. Watch files

@@ -1,25 +1,36 @@
 # Auto-upload screenshots
 
-CloudApp and Droplr let me take a screenshot or a video of the screen, and insta-upload it to the cloud. Lets replicate that behavior.
+CloudApp and Droplr let me take a screenshot or a video of the screen, and insta-upload it to the cloud. How can we replicate that behavior?
 
 ## Screenshots & Screencast
 
-Many systems like macOS have built-in tools for screencast + screenshot. On my Linux system, I use:
+First we need something to actually take the screenshots.
 
-- [`peek`](https://github.com/phw/peek) for screencast WEBM, MP4 and GIF
-- [`scrot`](http://manpages.ubuntu.com/manpages/cosmic/en/man1/scrot.1.html) for screenshots
+* **macOS** can use buil-in tools:
+  * Use <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>4</kbd> for partial screenshot
+  * Use <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>3</kbd> for full screenshot
+  * Configure a [custom screenshot save location](http://osxdaily.com/2011/01/26/change-the-screenshot-save-file-location-in-mac-os-x/)
 
-## Watching files
+* ***nix** can use 3rd party:
+  - [`peek`](https://github.com/phw/peek) for screencast WEBM, MP4 and GIF
+  - [`flameshot`](https://github.com/lupoDharkael/flameshot) for screenshots (partial or full)
 
-Ultimately we need a way to watch the filesystem for changes, then call `s3-upload` with the changed file paths.
+
+* **Windows 10** can use built-in shortcuts:
+  - <kbd>Win</kbd> + <kbd>Print Screen</kbd> for a full screenshot
+  - See [this WikiHow](https://www.wikihow.com/Take-a-Screenshot-in-Microsoft-Windows) for more options
+
+## 2. Watching files
+
+Ultimately we want a way to watch the screenshots folder for changes, then call `s3-upload` with the changed file paths.
 
 For a great cross-platform filesystem watcher, try [fswatch](https://github.com/emcrisostomo/fswatch). You can try a command like this on start-up:
 
 ```sh
-fswatch --event=Created "$HOME/screenshots" | s3-upload --stdin
+fswatch --event=Created --event=Updated "$HOME/screenshots" | s3-upload --stdin
 ```
 
-They make it hard to find the available [event types](https://github.com/emcrisostomo/fswatch/issues/207). You can specify multiple:
+You can specify one or more [event types](https://github.com/emcrisostomo/fswatch/issues/207) to watch:
 
 ```
 NoOp
@@ -39,7 +50,7 @@ Link
 Overflow
 ```
 
-### *NIX specific
+### Alternatives
 
 On Linux you can use [incron](https://inotify.aiken.cz/?section=incron&page=doc&lang=en) to automatically respond to filesystem changes with arbitrary commands.
 
@@ -55,40 +66,7 @@ Make sure your user owns the file:
 chown "$(whoami)" /var/spool/incron/s3-upload
 ```
 
-If you don't have a screenshot app, I use [`scrot`](https://www.tecmint.com/take-screenshots-in-linux-using-scrot/).
 
-I made an executable called `screenshot-select` with this content:
+### Annotation
 
-```sh
-#!/bin/sh
-SCREENSHOT_DIR="$HOME/screenshots"
-mkdir -p $SCREENSHOT_DIR
-sleep 0.2; scrot -s "$SCREENSHOT_DIR/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e "xdg-open \$f"
-```
-
-Then I bound then executable to a hotkey using my window manager.
-
-You can bind additonal keys and executables for other similar results.
-
-#### Full screenshot
-
-Create a `screenshot` executable, just change `scrot -s` to `scrot -m`.
-
-```sh
-#!/bin/sh
-sleep 0.2; scrot -m "$HOME/screenshots/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e "xdg-open \$f"
-```
-
-#### Annotation
-
-You can  annotate the screenshots, you can change `xdg-open` to your favorite editor such as `gimp`. I have `screenshot-annotate`:
-
-```sh
-#!/bin/sh
-sleep 0.2; scrot -s "$HOME/screenshots/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e "gimp \$f"
-```
-
-You can assign this to a separate hotkey to have quick access to annotating files. If you set-up your file watcher properly, e.g. with `fswatch --event=Updated`, then it should re-upload the annotated version automatically.
-
-On other platforms, you can apply this same principle with alternative software.
 Check out the [guide on annotating screenshots](annotate-screenshots.md).
