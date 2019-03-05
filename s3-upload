@@ -1,0 +1,330 @@
+#!/bin/bash
+
+# Default config file
+S3_CONFIG_FILE=${S3_CONFIG_FILE:-"$HOME/.config/s3-upload"}
+
+# Load config
+if [ -f "$S3_CONFIG_FILE" ]; then
+  . "$S3_CONFIG_FILE"
+fi
+
+# Die if any errors happen
+set -e
+
+# Formatting and help
+bold=$(tput bold)
+normal=$(tput sgr0)
+cmd=$(basename "$0")
+
+# Custom file names + types
+names=()
+mimetypes=()
+
+# Share urls
+shareurls=()
+
+
+# Report usage
+usage() {
+  local bold=$(tput bold)
+  local normal=$(tput sgr0)
+  local cmd=$(basename "$0")
+  echo "
+  ${bold}ABOUT${normal}
+
+    $cmd allows you to upload files into the cloud for free.
+    https://github.com/jchook/s3-upload
+
+
+  ${bold}USAGE${normal}
+
+    $cmd [options] [--] [<file> | -] ...
+
+
+  ${bold}OPTIONS${normal}
+
+    -c, --config <file>
+      Load a custom configuration file.
+
+    -C, --copy
+      Copy the share URL to clipboard.
+
+    -N, --notify
+      Notify successful upload via notify-send.
+
+    -n, --name <name>
+      Choose custom name(s) for the uploaded file(s).
+      Use multiple times (in order) for multiple files.
+      e.g. \"file.txt\"
+
+    -t, --type <type>
+      Choose custom MIME type(s) for the uploaded file(s).
+      Use multiple times (in order) for multiple files.
+      e.g. \"text/plain\"
+
+    -k, --key <access-key-id>
+      Use a specific IAM access key.
+
+    -p, --secret <secret-key>
+      Use a specific IAM access secret. Use empty string to prompt.
+
+    -q, --quiet
+      Don't print any information to STDOUT.
+
+    --stdin
+      Read a newline-separated file list from STDIN.
+
+    <file> ...
+      Path(s) to the file(s) you want to upload.
+      Specify a hyphen (-) to pipe data from stdin.
+
+
+  ${bold}EXAMPLES${normal}
+
+    - Upload a single file
+        $cmd file.txt
+
+    - Upload a few files
+        $cmd file1.txt file2.mp3
+
+    - Upload from STDIN
+        curl api.ipify.org | $cmd --name ip.txt -
+  " >&2
+
+  # Optionally exit with a status code
+  if [ -n "$1" ]; then
+    exit "$1"
+  fi
+}
+
+invalid() {
+  echo
+  echo "ERROR: Unrecognized argument: $1" >&2
+  echo
+  usage 1
+}
+
+# Pre-process options to:
+# - expand -xyz into -x -y -z
+# - expand --longopt=arg into --longopt arg
+ARGV=()
+END_OF_OPT=
+while [[ $# -gt 0 ]]; do
+  arg="$1"; shift
+  case "${END_OF_OPT}${arg}" in
+    --) ARGV+=("$arg"); END_OF_OPT=1 ;;
+    --*=*)ARGV+=("${arg%%=*}" "${arg#*=}") ;;
+    --*) ARGV+=("$arg"); END_OF_OPT=1 ;;
+    -*) for i in $(seq 2 ${#arg}); do ARGV+=("-${arg:i-1:1}"); done ;;
+    *) ARGV+=("$arg") ;;
+  esac
+done
+
+# Apply pre-processed options
+set -- "${ARGV[@]}"
+
+# Parse options
+END_OF_OPT=
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  case "${END_OF_OPT}${1}" in
+    -h|--help)      usage 0 ;;
+    -c|--config)    shift; . "$1" ;;
+    -p|--secret)    shift; S3_ACCESS_KEY="$1" ;;
+    -k|--key)       shift; S3_SECRET_KEY="$1" ;;
+    -n|--name)      shift; names+=("$1") ;;
+    -t|--type)      shift; mimetypes+=("$1") ;;
+    -q|--quiet)     QUIET=1 ;;
+    -C|--copy)      COPY=1 ;;
+    -N|--notify)    NOTIFY=1 ;;
+    --stdin)        READ_STDIN=1 ;;
+    --)             END_OF_OPT=1 ;;
+    -*)             invalid "$1" ;;
+    *)              POSITIONAL+=("$1") ;;
+  esac
+  shift
+done
+
+# Restore positional parameters
+set -- "${POSITIONAL[@]}"
+
+# Default clipboard app
+if [ -z "$CLIPBOARD" ] && [ -n "$COPY" ]; then
+  if type xclip &> /dev/null; then
+    CLIPBOARD="xclip -selection clipboard"
+  elif type pbcopy &> /dev/null; then
+    CLIPBOARD="pbcopy"
+  elif type clipboard &> /dev/null; then
+    CLIPBOARD="clipboard"
+  else
+    echo "Error: missing clipboard" >&2
+    exit 1
+  fi
+fi
+
+# First run...
+if [ -z "${S3_ACCESS_KEY}${S3_SECRET_KEY}${S3_BUCKET_NAME}" -a ! -f "$S3_CONFIG_FILE" ]; then
+
+  # Make sure we have an interactive terminal
+  if [[ ! -t 1 ]] || [[ -n "$QUIET" ]]; then
+    echo "ERROR: Missing S3 configuration" >&2
+    exit 1
+  fi
+
+  echo "
+  ${bold}Hello!${normal}
+
+    Looks like this is your first time using ${cmd}.
+
+    Please enter your s3 credentials below. If you need keys, visit:
+    https://console.aws.amazon.com/iam/home#/security_credentials
+
+    If you need an S3 bucket, you can create one here:
+    https://s3.console.aws.amazon.com/s3/home
+
+  " >&2
+  read -p "  ${bold}S3 Access Key:${normal} " S3_ACCESS_KEY
+  read -p "  ${bold}S3 Secret Key:${normal} " S3_SECRET_KEY
+  read -p "  ${bold}S3 Bucket Name:${normal} " S3_BUCKET_NAME
+  echo "S3_ACCESS_KEY='$S3_ACCESS_KEY'" > "$S3_CONFIG_FILE"
+  echo "S3_SECRET_KEY='$S3_SECRET_KEY'" >> "$S3_CONFIG_FILE"
+  echo "S3_BUCKET_NAME='$S3_BUCKET_NAME'" >> "$S3_CONFIG_FILE"
+  chmod 600 "$S3_CONFIG_FILE"
+
+  echo '
+
+    Ok great!
+
+    If you want to allow public access to your uploads:
+
+      1. Visit https://s3.console.aws.amazon.com/s3/home
+      2. Click on your bucket in the list on S3, then choose the Permissions tab
+      3. Uncheck "Block public and cross-account access if bucket has public policies"
+      4. Update your Bucket Policy to something like this:
+
+        {
+          "Version": "2008-10-17",
+          "Statement": [
+            {
+              "Sid": "AllowPublicRead",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": [
+                "arn:aws:s3:::'"${S3_BUCKET_NAME}"'/*"
+              ]
+            }
+          ]
+        }
+
+  ' >&2
+
+  # Do we have a file to upload?
+  if [ -n "$*" -o -n "$READ_STDIN" ]; then
+    echo "Uploading your file(s) now..." >&2
+  else
+    exit 0
+  fi
+
+# Check for positional params
+elif [ -z "$*" ]; then
+  usage 1
+fi
+
+# Require username
+if [ -z "$S3_ACCESS_KEY" ]; then
+  echo "Error: missing S3_ACCESS_KEY" >&2
+  exit 1
+fi
+
+# Require password
+if [ -z "$S3_SECRET_KEY" ]; then
+  read -p 'S3 Secret Key: ' S3_SECRET_KEY
+fi
+
+# Require Bucket
+if [ -z "$S3_BUCKET_NAME" ]; then
+  read -p 'S3 Bucket Name: ' S3_BUCKET_NAME
+fi
+
+upload() {
+  local file="$1"
+  local filename="${names[$ITER]}"
+  ITER=$(($ITER+1))
+
+  # Specified file exists?
+  if [[ "$file" != '-' ]] && [ ! -f "$file" ]; then
+    echo "File does not exist: $file" >&2
+    return 1
+  fi
+
+  # Ensure filename
+  if [ -z "$filename" ]; then
+    if [[ "$file" == "-" ]]; then
+      filename="$(date +%F--%H-%M-%S)-${ITER}.dat"
+    else
+      filename="${file##*/}" # basename
+    fi
+  fi
+
+  # Prepare the request
+  local resource="/${S3_BUCKET_NAME}/${filename}"
+  local contentType="$(file -b --mime-type "$file")"
+  local contentType="${contentType:-"application/octet-stream"}"
+  local dateValue=`date -R`
+  local stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+  local signature="$(echo -en "${stringToSign}" | openssl sha1 -hmac "${S3_SECRET_KEY}" -binary | base64)"
+  local url="https://${S3_BUCKET_NAME}.s3.amazonaws.com/${filename}"
+  local input=/dev/null
+  if [[ "$file" == '-' ]]; then
+    input=/dev/stdin
+  fi
+
+  # Do the upload
+  curl -X PUT -T "${file}" \
+    -H "Host: ${S3_BUCKET_NAME}.s3.amazonaws.com" \
+    -H "Date: ${dateValue}" \
+    -H "Content-Type: ${contentType}" \
+    -H "Authorization: AWS ${S3_ACCESS_KEY}:${signature}" \
+    "$url" < "$input"
+
+  # Print result
+  if [ -z "$QUIET" ]; then
+    echo "$url"
+  fi
+
+  # Store the result in the shareurls
+  shareurls+=("$url")
+
+  # Notify user
+  if [ -n "$NOTIFY" ]; then
+    if type notify-send &> /dev/null; then
+      notify-send "S3 Upload" "$url"
+    fi
+  fi
+}
+
+
+# Upload file list from STDIN?
+if [ -n "$READ_STDIN" ]; then
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+    upload "$line"
+  done
+
+# Upload file list from args
+else
+  while [[ $# -gt 0 ]]; do
+    upload "$1"
+    shift
+  done
+fi
+
+# Copy all URLs to clipboard
+if [ -n "$COPY" ]; then
+  printf '%s\n' "${shareurls[@]}" | $CLIPBOARD
+fi
+
