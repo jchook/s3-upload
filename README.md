@@ -29,9 +29,26 @@ To upload a file simply pass it as the argument(s) to the executeable. The URL f
   s3-upload [options] [--] [<file> | -] ...
 ```
 
+## Config file
+
+The first time you run `s3-upload`, it will prompt you to enter your S3 details. However, you can opt to manage the config file manually if you like.
+
+You can configure almost all option defaults. Use standard bash variable assignments in the file `~/.config/s3-upload`:
+
+```sh
+AWS_ACCESS_KEY_ID="XXX"
+AWS_ACCESS_KEY_SECRET="YYY"
+S3_BUCKET_NAME="ZZZ"
+COPY=1
+NOTIFY=1
+QUIET=
+CLIPBOARD="xclip -selection clipboard"
+```
+
+
 ## Options
 
-Command-line options allow you to override all other configuration at the call site.
+Command-line options allow you to override all configuration at the call site.
 
 ```
   -c, --config <file>
@@ -67,21 +84,6 @@ Command-line options allow you to override all other configuration at the call s
     Path(s) to the file(s) you want to upload.
     Specify a hyphen (-) to pipe data from stdin.
 ```
-
-## Config file
-
-You can configure almost all option defaults from the file located in `~/.config/s3-upload`. Use standard bash like so.
-
-```sh
-S3_ACCESS_KEY="XXX"
-S3_PRIVATE_KEY="YYY"
-S3_BUCKET_NAME="ZZZ"
-COPY=1
-NOTIFY=1
-QUIET=
-CLIPBOARD="xclip -selection clipboard"
-```
-
 
 ## Examples
 
@@ -120,7 +122,7 @@ Alone this tool is pretty useful for me, but I found some really great ways to i
 
 On Linux you can use [incron](https://inotify.aiken.cz/?section=incron&page=doc&lang=en) to automatically respond to filesystem changes with arbitrary commands.
 
-After installing `incrond`, add this code into [`/var/spool/incron/s3-upload`](https://linux.die.net/man/5/incrontab) (replace `jchook` with your username):
+After installing `incrond`, add this code into [`/var/spool/incron/s3-upload`](https://linux.die.net/man/5/incrontab):
 
 ```incrontab
 /path/to/screenshots IN_CLOSE_WRITE s3-upload -CN $@/$#
@@ -142,3 +144,10 @@ If you want to make this the default behavior, you can add this to your `~/.conf
 ```sh
 COPY=1
 ```
+
+## See also
+
+- [`Amazon S3 Tools`](https://s3tools.org/s3cmd)
+- [`s3put`](https://manpages.debian.org/jessie/libnet-amazon-s3-tools-perl/s3put.1p.en.html)
+- [`scrot`](https://www.tecmint.com/take-screenshots-in-linux-using-scrot/) for screenshots
+- [`peek`](https://github.com/phw/peek) for screen recording
