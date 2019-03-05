@@ -42,7 +42,6 @@ S3_BUCKET_NAME="ZZZ"
 COPY=1
 NOTIFY=1
 QUIET=
-CLIPBOARD="xclip -selection clipboard"
 ```
 
 
@@ -134,6 +133,23 @@ Make sure your user owns the file:
 chown "$(whoami)" /var/spool/incron/s3-upload
 ```
 
+If you don't have a screenshot app, I use [`scrot`](https://www.tecmint.com/take-screenshots-in-linux-using-scrot/).
+
+I made an executable called `select-screenshot` with this content:
+
+```sh
+#!/bin/sh
+SCREENSHOT_DIR="$HOME/screenshots"
+mkdir -p $SCREENSHOT_DIR
+sleep 0.2; scrot -s "$SCREENSHOT_DIR/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e "xdg-open \$f"
+```
+
+Then I bound then executable to a hotkey using my window manager.
+
+You can also do the same for a regular `screenshot` executable, just change `scrot -s` to `scrot -m`.
+
+For screen recording WEBM, MP4 and GIF, I use [`peek`](https://github.com/phw/peek).
+
 
 ### Copy share URL to clipboard
 
@@ -142,12 +158,20 @@ A lot of times you want to automatically copy the share URL to the clipboard. Yo
 If you want to make this the default behavior, you can add this to your `~/.config/s3-upload` file:
 
 ```sh
+# Copy URL to clipboard by default
 COPY=1
+
+# Use a custom clipboard command (optional)
+# This one works on Mac OS X
+CLIPBOARD="pbcopy"
 ```
+
+## License
+
+MIT.
+
 
 ## See also
 
 - [`Amazon S3 Tools`](https://s3tools.org/s3cmd)
 - [`s3put`](https://manpages.debian.org/jessie/libnet-amazon-s3-tools-perl/s3put.1p.en.html)
-- [`scrot`](https://www.tecmint.com/take-screenshots-in-linux-using-scrot/) for screenshots
-- [`peek`](https://github.com/phw/peek) for screen recording
