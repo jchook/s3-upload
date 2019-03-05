@@ -1,8 +1,22 @@
-# S3 Upload Command
+# S3 Upload
 
-`s3-upload` allows *nix users to easily upload files to the cloud for free.
+`s3-upload` lets you easily upload files to the cloud for free.
 
-I created this to replace [CloudApp](https://www.getcloudapp.com/) for sharing screenshots and videos. Before this, I created a similar command-line tool [specifically for CloudApp](https://github.com/jchook/cloudapp-linux) integration.
+I created this to replace [CloudApp](https://www.getcloudapp.com/) and [Droplr](https://droplr.com/) for sharing files, screenshots, and videos with friends and co-workers. With a little set-up, you can:
+
+- Upload files, screenshots, & screencasts to the cloud
+- Easily anotate visual uploads with your own graphics software
+- Copy share URLs to clipboard automatically
+
+For more information on how to easily set this up, check out the [recipes](#user-content-recipes).
+
+## Platforms
+
+So far I have only tested this on Ubuntu 17.04 but I expect it will work on:
+
+- Linux, etc
+- Mac OS X
+- Windows 10 (with [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
 
 ## Requirements
 
@@ -112,12 +126,24 @@ Command-line options allow you to override all configuration at the call site.
 ```
 
 
-
+<a id="Recipes"></a>
 ## Recipes
 
 Alone this tool is pretty useful for me, but I found some really great ways to integrate it into my workflow.
 
 ### Auto-upload screenshots
+
+One of the key features I enjoy about CloudApp and Droplr
+
+#### Cross-platform
+
+For a great cross-platform filesystem watcher, try [fswatch](https://github.com/emcrisostomo/fswatch). You can try a command like this on start-up:
+
+```sh
+fswatch --event=Created "$@" | s3-upload --stdin
+```
+
+#### Linux
 
 On Linux you can use [incron](https://inotify.aiken.cz/?section=incron&page=doc&lang=en) to automatically respond to filesystem changes with arbitrary commands.
 
