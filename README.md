@@ -1,7 +1,5 @@
 # S3 Upload
 
-`s3-upload` lets you easily upload files to the cloud for free.
-
 Replace [CloudApp](https://www.getcloudapp.com/) and [Droplr](https://droplr.com/) for **sharing files, screenshots, and videos** with friends and co-workers.
 
 With a little set-up, you can:
@@ -10,7 +8,7 @@ With a little set-up, you can:
 - Easily anotate image uploads with your preferred graphics software.
 - Copy sharable URLs to clipboard automatically.
 
-For more information on how to easily set this up, check out the [recipes](#user-content-recipes).
+For more information on how to easily set this up, check out the [automation section](#user-content-automation).
 
 ## Benefits
 
@@ -19,8 +17,9 @@ With this guide, you can replace your screenshot sharing tool with something bet
 - 5GB completely free.
 - Configure auto-expire or not.
 - 100% free and open source software.
+- About 3x to 10x faster than competing services.
 - Bring your own annotation / graphics software like Gimp, Sketch, or Photoshop.
-- Get links to direct files. No tracking or intermediary pages.
+- Get links to direct files. No intermediary pages. No tracking.
 
 ## Install
 
@@ -36,9 +35,9 @@ You can repeat the same process for upgrades to a newer version.
 
 ### Platforms
 
-So far I have only tested this on Ubuntu 17.04 but I expect it will work on:
+So far I have only tested this on Ubuntu 18.04 but I expect it will work on:
 
-- Linux, etc
+- Linux, BSD, etc
 - Mac OS X
 - Windows 10 (with [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
 
@@ -49,11 +48,16 @@ So far I have only tested this on Ubuntu 17.04 but I expect it will work on:
 
 ## Usage
 
-To upload, simply pass the file path(s) to the executeable.
-
+To upload, simply pass file path(s) to the executeable, e.g.
 
 ```sh
-  s3-upload [options] [--] [<file> | -] ...
+s3-upload aww-yeah.gif
+```
+
+For a deeper understanding of the usage:
+
+```sh
+s3-upload [options] [--] [<file> | -] ...
 ```
 
 A sharable URL link for the uploaded file will print to standard output. You can use the `--copy` option to copy it to clipboard, or the `--quiet` option to suppress this behavior.
@@ -115,39 +119,29 @@ Command-line options allow you to override all configuration at the call site.
 
 ## Examples
 
-- Upload a single file
-```sh
-  s3-upload file.txt
-```
-
 - Upload multiple files
 ```sh
   s3-upload file1.txt file2.mp3
 ```
 
-- Upload from STDIN
+- Upload from STDIN with a custom name
 ```sh
   curl api.ipify.org | s3-upload --name ip.txt -
 ```
 
-- Upload a file, notify, and copy the share url to clipboard
+- Upload a file and copy the url to the system clipboard
 ```sh
-  s3-upload -CN file.png
+  s3-upload --copy file.png
 ```
 
-- Upload a file with a custom name / path:
-```sh
-  s3-upload --name subfolder/custom.png file.png
-```
 
 
 <a id="Recipes"></a>
-## Recipes
+## Automation
 
-Alone this tool is pretty useful for me, but I found some really great ways to integrate it into my workflow:
+I found some really great ways to integrate this tool into my workflow:
 
-* [Auto copy to clipboard](docs/recipes/auto-copy-to-clipboard.md)
-* [Auto upload screenshots and screencast](docs/recipes/auto-upload-screenshots.md)
+* [Upload screenshots and screencast](docs/recipes/auto-upload-screenshots.md)
 * [Annotate screenshots](docs/recipes/annotate-screenshots.md)
 
 

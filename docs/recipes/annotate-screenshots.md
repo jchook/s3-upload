@@ -2,11 +2,11 @@
 
 The basic princple:
 
-1. Tell your screenshot command to launch your favorite 2D editor, like `gimp`, each time you take a screenshot.
+1. Sceenshot then launch 2D editor, like `gimp`.
 2. Bind it to a hotkey in your window manager or OS.
-3. Configure a filesystem event watcher like `fswatch` to respond to changes in the screenshots folder by calling `s3-upload`.
+3. Call `s3-upload` any time you update files in a given folder.
 
-You can also follow the guide to [auto-upload screenshots](auto-upload-screenshots.md) to achieve this functionality.
+On *nix systems, you can follow the guide to [auto-upload screenshots](auto-upload-screenshots.md) to achieve this functionality.
 
 Here is a quick example of my set-up:
 

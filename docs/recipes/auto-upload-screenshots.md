@@ -1,15 +1,17 @@
 # Auto-upload screenshots
 
-One of the key features I enjoy about CloudApp and Droplr is the ability to take a screenshot or a video of the screen.
+CloudApp and Droplr let me take a screenshot or a video of the screen, and insta-upload it to the cloud. Lets replicate that behavior.
+
+## Screenshots & Screencast
 
 Many systems like macOS have built-in tools for screencast + screenshot. On my Linux system, I use:
 
 - [`peek`](https://github.com/phw/peek) for screencast WEBM, MP4 and GIF
 - [`scrot`](http://manpages.ubuntu.com/manpages/cosmic/en/man1/scrot.1.html) for screenshots
 
-Ultimately we need a way to watch the filesystem for changes, then call `s3-upload` with the changed file paths.
+## Watching files
 
-## Cross-platform
+Ultimately we need a way to watch the filesystem for changes, then call `s3-upload` with the changed file paths.
 
 For a great cross-platform filesystem watcher, try [fswatch](https://github.com/emcrisostomo/fswatch). You can try a command like this on start-up:
 
@@ -37,7 +39,7 @@ Link
 Overflow
 ```
 
-## Linux
+### *NIX specific
 
 On Linux you can use [incron](https://inotify.aiken.cz/?section=incron&page=doc&lang=en) to automatically respond to filesystem changes with arbitrary commands.
 
@@ -68,7 +70,7 @@ Then I bound then executable to a hotkey using my window manager.
 
 You can bind additonal keys and executables for other similar results.
 
-### Full screenshot
+#### Full screenshot
 
 Create a `screenshot` executable, just change `scrot -s` to `scrot -m`.
 
@@ -77,7 +79,7 @@ Create a `screenshot` executable, just change `scrot -s` to `scrot -m`.
 sleep 0.2; scrot -m "$HOME/screenshots/%Y-%m-%d-%H%M%S_\$wx\$h.png" -e "xdg-open \$f"
 ```
 
-### Annotation
+#### Annotation
 
 You can  annotate the screenshots, you can change `xdg-open` to your favorite editor such as `gimp`. I have `screenshot-annotate`:
 
