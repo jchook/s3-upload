@@ -331,7 +331,7 @@ upload() {
   # Notify user
   if [ -n "$NOTIFY" ]; then
     if type notify-send &> /dev/null; then
-      notify-send "S3 Upload" "$url"
+      notify-send "S3 Upload" "$filename uploaded to S3!"
     fi
   fi
 }
